@@ -1,2 +1,2 @@
 # eduBy
-eduBy,top网站开源源码
+eduBy.top网站开源源码
