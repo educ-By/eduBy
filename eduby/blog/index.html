@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>博客 · eduby</title>
+<meta name="description" content="eduby 团队的想法、教学方法论、和学习故事。" />
+<style>
+  :root {
+    --bg: #fbfbfd;
+    --bg-soft: #f5f5f7;
+    --ink: #1d1d1f;
+    --ink-soft: #6e6e73;
+    --ink-faint: #86868b;
+    --line: rgba(0,0,0,0.08);
+    --accent: #0071e3;
+    --gradient-1: linear-gradient(135deg, #a78bfa 0%, #3b82f6 50%, #06b6d4 100%);
+    --gradient-2: linear-gradient(135deg, #f472b6 0%, #a78bfa 50%, #60a5fa 100%);
+    --gradient-3: linear-gradient(135deg, #34d399 0%, #60a5fa 100%);
+    --gradient-4: linear-gradient(135deg, #fbbf24 0%, #f472b6 100%);
+    --shadow-sm: 0 4px 14px rgba(0,0,0,0.04);
+    --shadow-md: 0 10px 40px rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+                 "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  /* Subtle film grain (same as index) */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* NAV (shared) */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(251,251,253,0.72);
+    border-bottom: 1px solid var(--line);
+    transition: background 0.3s ease;
+  }
+  .nav.scrolled { background: rgba(251,251,253,0.88); }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 17px; letter-spacing: -0.01em;
+    color: var(--ink); text-decoration: none;
+  }
+  .brand-mark {
+    width: 24px; height: 24px; border-radius: 7px;
+    background: var(--ink); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; letter-spacing: -0.04em; line-height: 1;
+    position: relative;
+  }
+  .brand-mark::after {
+    content: ""; position: absolute; top: 4px; right: 4px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--accent-4, #30d158);
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--ink-soft); text-decoration: none; font-size: 14px;
+    transition: color 0.2s ease;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.active { color: var(--ink); font-weight: 500; }
+  .nav-cta {
+    padding: 8px 16px; background: var(--ink); color: #fff;
+    border-radius: 999px; font-size: 14px; text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-cta:hover { transform: translateY(-1px); opacity: 0.9; }
+  @media (max-width: 720px) { .nav-links { display: none; } }
+
+  /* PAGE HERO */
+  .page-hero {
+    padding: 140px 24px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-hero::before {
+    content: ""; position: absolute; top: -10%; left: 50%;
+    transform: translateX(-50%);
+    width: 1000px; height: 1000px;
+    background: radial-gradient(closest-side,
+      rgba(167,139,250,0.15) 0%, rgba(59,130,246,0.08) 30%, transparent 70%);
+    pointer-events: none;
+    animation: hero-float 14s ease-in-out infinite;
+  }
+  @keyframes hero-float {
+    0%, 100% { transform: translate(-50%, 0) scale(1); }
+    50% { transform: translate(-50%, -20px) scale(1.04); }
+  }
+  .page-hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: 13px; color: var(--ink-soft);
+    margin-bottom: 24px; box-shadow: var(--shadow-sm);
+  }
+  .page-hero .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #a78bfa;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+  }
+  .page-hero h1 {
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1.05; letter-spacing: -0.04em;
+    font-weight: 700; margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+  .gradient-text {
+    background: var(--gradient-1);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; background-size: 200% 200%;
+    animation: gradient-shift 6s ease-in-out infinite;
+  }
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .page-hero p {
+    font-size: clamp(16px, 1.8vw, 19px);
+    color: var(--ink-soft); max-width: 560px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  /* CONTAINER */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 60px 24px 100px; position: relative; }
+
+  /* FILTER TABS */
+  .filter-bar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 48px;
+  }
+  .filter-tab {
+    padding: 8px 16px; background: #fff;
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: 14px; color: var(--ink-soft);
+    cursor: pointer; transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  .filter-tab:hover { color: var(--ink); border-color: rgba(0,0,0,0.15); }
+  .filter-tab.active {
+    background: var(--ink); color: #fff; border-color: var(--ink);
+  }
+
+  /* BLOG GRID */
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  .post-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+  }
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+  .post-cover {
+    aspect-ratio: 16 / 9;
+    position: relative; overflow: hidden;
+  }
+  .post-cover .cover-art {
+    position: absolute; inset: 0;
+  }
+  .post-cover::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.15));
+  }
+  .post-cover .cat {
+    position: absolute; top: 14px; left: 14px;
+    padding: 4px 10px; background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 999px; font-size: 11px; font-weight: 600;
+    color: var(--ink); letter-spacing: 0.02em;
+    z-index: 1;
+  }
+  .post-body { padding: 24px 24px 22px; flex: 1; display: flex; flex-direction: column; }
+  .post-body h3 {
+    font-size: 20px; font-weight: 600;
+    letter-spacing: -0.01em; line-height: 1.3; margin-bottom: 10px;
+  }
+  .post-body .excerpt {
+    color: var(--ink-soft); font-size: 14px; line-height: 1.55;
+    margin-bottom: 18px; flex: 1;
+  }
+  .post-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--ink-faint);
+    padding-top: 16px; border-top: 1px solid var(--line);
+  }
+  .author { display: flex; align-items: center; gap: 8px; }
+  .avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 600;
+  }
+  .meta-right { display: flex; gap: 12px; }
+  .meta-right span { display: inline-flex; align-items: center; gap: 4px; }
+
+  /* Cover art patterns (SVG inline) */
+  .art-1 {
+    background: var(--gradient-1);
+  }
+  .art-1::before {
+    content: ""; position: absolute;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    top: -60px; right: -40px;
+  }
+  .art-2 { background: var(--gradient-2); }
+  .art-2::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 30%),
+                      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 25%);
+  }
+  .art-3 { background: var(--gradient-3); }
+  .art-3::before {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(45deg,
+      transparent 0px, transparent 20px,
+      rgba(255,255,255,0.08) 20px, rgba(255,255,255,0.08) 21px);
+  }
+  .art-4 { background: var(--gradient-4); }
+  .art-4::before {
+    content: ""; position: absolute;
+    width: 300px; height: 100px;
+    background: rgba(255,255,255,0.18);
+    bottom: 30px; left: -50px;
+    transform: rotate(-8deg);
+    border-radius: 50%;
+  }
+  .art-5 { background: linear-gradient(135deg, #1d1d1f 0%, #3a3a3c 100%); }
+  .art-5::before {
+    content: "∑"; position: absolute;
+    font-size: 140px; color: rgba(255,255,255,0.08);
+    bottom: -30px; right: 10px; font-weight: 700;
+  }
+  .art-6 { background: linear-gradient(135deg, #fb7185 0%, #f59e0b 100%); }
+  .art-6::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: linear-gradient(90deg,
+      transparent 0px, transparent 14px,
+      rgba(255,255,255,0.1) 14px, rgba(255,255,255,0.1) 15px);
+  }
+
+  /* POST DETAIL */
+  .post-detail {
+    max-width: 720px; margin: 0 auto;
+    padding: 140px 24px 100px;
+  }
+  .post-detail .back {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--ink-soft); text-decoration: none;
+    font-size: 14px; margin-bottom: 32px;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+  .post-detail .back:hover { color: var(--ink); transform: translateX(-2px); }
+  .post-detail .cat-badge {
+    display: inline-block; padding: 4px 12px;
+    background: rgba(167,139,250,0.15);
+    color: #7c3aed; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.02em; margin-bottom: 16px;
+  }
+  .post-detail h1 {
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.15; letter-spacing: -0.03em;
+    font-weight: 700; margin-bottom: 24px;
+  }
+  .post-detail .meta {
+    display: flex; align-items: center; gap: 20px;
+    padding: 20px 0; border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-faint); font-size: 14px;
+    margin-bottom: 40px;
+  }
+  .post-detail .meta .author { font-size: 14px; color: var(--ink-soft); }
+  .post-body-content {
+    font-size: 17px; line-height: 1.8; color: var(--ink-soft);
+  }
+  .post-body-content p { margin-bottom: 20px; }
+  .post-body-content h2 {
+    font-size: 26px; font-weight: 600; color: var(--ink);
+    letter-spacing: -0.02em; margin: 40px 0 16px;
+  }
+  .post-body-content blockquote {
+    border-left: 3px solid #a78bfa;
+    padding: 4px 0 4px 20px; margin: 24px 0;
+    color: var(--ink); font-style: normal; font-weight: 500;
+  }
+  .post-body-content code {
+    background: var(--bg-soft);
+    padding: 2px 8px; border-radius: 6px;
+    font-family: "SF Mono", "Monaco", "Menlo", monospace;
+    font-size: 0.9em; color: var(--ink);
+  }
+  .post-nav {
+    display: flex; justify-content: space-between;
+    gap: 16px; margin-top: 60px;
+    padding-top: 32px; border-top: 1px solid var(--line);
+  }
+  .post-nav a {
+    flex: 1; padding: 20px; border-radius: 16px;
+    background: #fff; border: 1px solid var(--line);
+    text-decoration: none; color: var(--ink);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .post-nav a:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  .post-nav .label { font-size: 12px; color: var(--ink-faint); margin-bottom: 6px; }
+  .post-nav .title { font-size: 15px; font-weight: 500; }
+
+  /* FOOTER (shared style) */
+  footer {
+    background: var(--bg-soft);
+    padding: 60px 24px 30px; border-top: 1px solid var(--line);
+  }
+  .footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+  }
+  @media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+  .footer-brand p { color: var(--ink-soft); font-size: 14px; margin-top: 12px; max-width: 280px; }
+  .footer-col h4 {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--ink-faint); margin-bottom: 16px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a {
+    color: var(--ink-soft); text-decoration: none; font-size: 14px;
+    transition: color 0.2s ease;
+  }
+  .footer-col a:hover, .footer-col a.active { color: var(--ink); }
+  .footer-bottom {
+    max-width: 1200px; margin: 40px auto 0; padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; flex-wrap: wrap;
+    gap: 16px; font-size: 13px; color: var(--ink-faint);
+  }
+
+  /* Card reveal animation (mirrored from index) */
+  .post-card, .filter-tab {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 0.3s ease, background 0.2s ease, color 0.2s ease,
+                border-color 0.2s ease;
+  }
+  .post-card.card-in, .filter-tab.card-in { opacity: 1; transform: translateY(0); }
+  .filter-tab.card-in { opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="https://eduby.top" target="_blank" rel="noopener" class="brand">
+      <span class="brand-mark" aria-hidden="true">e</span>
+      <span>eduby</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">主页</a></li>
+      <li><a href="blog.html" class="active">博客</a></li>
+      <li><a href="forum.html">论坛</a></li>
+    </ul>
+    <a href="index.html#cta" class="nav-cta">加入我们</a>
+  </div>
+</nav>
+
+<!-- LIST VIEW (default) -->
+<div id="view-list">
+  <header class="page-hero">
+    <div class="eyebrow"><span class="dot"></span><span>来自团队的思考</span></div>
+    <h1>读点<br /><span class="gradient-text">不一样的东西。</span></h1>
+    <p>学习方法、教学观点、还有我们写代码时踩过的坑。慢一点,深一点。</p>
+  </header>
+
+  <section>
+    <div class="container">
+      <div class="filter-bar" id="filterBar">
+        <a class="filter-tab active" data-cat="all">全部</a>
+        <a class="filter-tab" data-cat="method">学习方法</a>
+        <a class="filter-tab" data-cat="story">学习故事</a>
+        <a class="filter-tab" data-cat="build">做 eduby</a>
+        <a class="filter-tab" data-cat="meta">随笔</a>
+      </div>
+      <div class="blog-grid" id="blogGrid"><!-- injected by JS --></div>
+    </div>
+  </section>
+</div>
+
+<!-- DETAIL VIEW (hidden by default) -->
+<div id="view-detail" style="display:none;">
+  <article class="post-detail" id="postDetail"><!-- injected by JS --></article>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="https://eduby.top" target="_blank" rel="noopener" class="brand">
+        <span class="brand-mark" aria-hidden="true">e</span>
+        <span>eduby</span>
+      </a>
+      <p>一个由学习者共建的开源教育项目。Made with care by high schoolers, for high schoolers.</p>
+    </div>
+    <div class="footer-col">
+      <h4>学习</h4>
+      <ul>
+        <li><a href="blog.html" class="active">博客</a></li>
+        <li><a href="forum.html">论坛</a></li>
+        <li><a href="index.html#subjects">学科</a></li>
+        <li><a href="index.html#features">特色</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>贡献</h4>
+      <ul>
+        <li><a href="#">eduby 仓库</a></li>
+        <li><a href="#">贡献指南</a></li>
+        <li><a href="#">Roadmap</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>关于</h4>
+      <ul>
+        <li><a href="#">团队</a></li>
+        <li><a href="blog.html">博客</a></li>
+        <li><a href="#">联系我们</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 eduby · Licensed under MIT</span>
+    <span>Built with ☕ by students, for students.</span>
+  </div>
+</footer>
+
+<script>
+  // ============== BLOG DATA ==============
+  const posts = [
+    {
+      id: 'p1',
+      cat: 'method',
+      catLabel: '学习方法',
+      title: '为什么我们不再给学生"刷题"',
+      excerpt: '刷题是反人性的。它让你把"学习"和"痛苦"绑在一起,然后用考试来收割。我们想试试别的。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '6 分钟',
+      date: '2026-08-22',
+      cover: 'art-1',
+      body: `
+        <p>高中的时候,我刷过一万道数学题。说实话,我并不觉得那些题让我"学会"了数学。它们只是让我"熟悉"了套路。</p>
+        <p>如果把数学比作一座山,刷题就像沿着别人开好的山路走一万遍。你会走得很快,但你永远不会知道这座山长什么样。</p>
+        <h2>我们想做什么</h2>
+        <p>eduby 的每一个学科,都会先给你一张"知识地图"。这张地图告诉你:你现在在哪里,前面是什么,后面又通往哪里。</p>
+        <p>然后,系统会按"你最值得现在学"的顺序,推荐下一个知识点。不是按考纲,不是按章节,是按<em>你的状态</em>。</p>
+        <blockquote>学习不是爬坡,是复利。</blockquote>
+        <p>听起来很玄乎?其实很简单:你学过的每一个东西,都会成为下一个东西的"支点"。系统帮你看到这些支点。</p>
+        <h2>一个具体的例子</h2>
+        <p>你刚学会"牛顿第二定律"。系统不会马上让你刷 50 道 F=ma 的题。它会告诉你:动量守恒就在隔壁,先把它拿下,你 F=ma 立刻就有了第二个用法。</p>
+        <p>这才叫学习。</p>
+      `
+    },
+    {
+      id: 'p2',
+      cat: 'story',
+      catLabel: '学习故事',
+      title: '我是怎么从物理 38 分,到年级前十的',
+      excerpt: '不是鸡汤,是真的踩过的坑和意外发现的方法。如果你也曾觉得物理"不是人学的",这篇可能对你有用。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '9 分钟',
+      date: '2026-08-15',
+      cover: 'art-3',
+      body: `
+        <p>高一期中考,物理 38 分,满分 100。拿到卷子的那一刻,我以为老师多扣了 10 分。</p>
+        <p>后来我才明白,38 分不是"运气差",是"我真的不会"。</p>
+        <h2>我试过的方法(都失败了)</h2>
+        <p>刷题。没用。错题本。没用。补课。没用,反而更焦虑。</p>
+        <p>问题出在哪?我花了一个暑假想明白:我是在<strong>背物理</strong>,不是在<strong>理解物理</strong>。</p>
+        <h2>让我翻身的那句话</h2>
+        <p>一个老师跟我说:"别问公式是什么,问公式<em>从哪来</em>。"</p>
+        <blockquote>公式是结果,不是起点。起点是"为什么要这样想"。</blockquote>
+        <p>从那以后,我每学一个公式,都先问:如果我是第一个发现它的人,我会怎么想?然后自己试着推一遍。</p>
+        <h2>现在我物理考多少?</h2>
+        <p>高三稳定在 90+。但更重要的是,我不再害怕物理了。它变成了我最喜欢的一门课。</p>
+        <p>如果你也曾觉得自己"学不好某科",也许不是你的问题,是方法的问题。</p>
+      `
+    },
+    {
+      id: 'p3',
+      cat: 'build',
+      catLabel: '做 eduby',
+      title: '我们用 200 行代码,搭出了第一个知识图谱',
+      excerpt: '不是 React,不是 Vue,不是任何框架。纯 HTML + 一段 Python 推荐算法。能跑就行,先把东西做出来。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '7 分钟',
+      date: '2026-08-08',
+      cover: 'art-5',
+      body: `
+        <p>很多人会问:你们用 React 吗?用 TypeScript 吗?有 GraphQL 吗?</p>
+        <p>答案是:都没有。我们用了一个 200 行的 Python 脚本,把"知识图谱"跑起来了。</p>
+        <h2>为什么这么"简陋"</h2>
+        <p>因为我们穷。不是真的穷,是<em>时间穷</em>。我们都是高中生,能用来写代码的时间,只有周末和晚上。</p>
+        <p>所以我们的原则是:能用最简单的方式跑起来,绝不用更复杂的。</p>
+        <h2>那段 200 行的代码做了什么</h2>
+        <p>输入两个东西:</p>
+        <p><code>mastered</code> —— 你已经会的知识点列表<br />
+        <code>graph</code> —— 所有知识点之间的"邻居关系"</p>
+        <p>输出一个东西:你<em>现在最该学</em>的那个知识点。</p>
+        <p>算法思路?很朴素:<strong>邻居越多越值得学</strong>。因为"举一反三"的成本最低。</p>
+        <h2>接下来</h2>
+        <p>等真实用户量上来,我们再考虑重构、上 TypeScript、拆微服务。但在"有 1000 个真实用户"之前,这一切都是过早优化。</p>
+        <p>先把东西做出来,再把它做对,最后把它做好。</p>
+      `
+    },
+    {
+      id: 'p4',
+      cat: 'meta',
+      catLabel: '随笔',
+      title: '为什么 eduby 永远不接广告',
+      excerpt: '这是一条原则,不是商业策略。教育被广告污染的事情,已经发生得够多了。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '4 分钟',
+      date: '2026-07-30',
+      cover: 'art-2',
+      body: `
+        <p>曾经有投资人问我们:"你们打算怎么变现?"</p>
+        <p>我们的回答是:大概率不变现。</p>
+        <h2>不是清高,是底线</h2>
+        <p>教育的本质,是"把对的东西,告诉对的人"。</p>
+        <p>一旦我们接了广告,这个逻辑就会变成:"谁给钱,我们就把什么推给用户"。</p>
+        <p>你想让你正在学的物理课里,突然出现一个手游广告吗?</p>
+        <blockquote>我们不接受任何会影响内容中立的合作。学习者该信什么,不该由广告主决定。</blockquote>
+        <h2>那 eduby 怎么活下来</h2>
+        <p>开源本身就是一种活法。我们不需要盈利,只需要有人愿意贡献时间。</p>
+        <p>如果有一天真要钱,我们会通过:捐赠、付费可选功能、企业培训。</p>
+        <p>但永远不是:广告、用户数据买卖、卖证书。</p>
+        <h2>写给未来的自己</h2>
+        <p>如果有一天,我在某个商业 PPT 上看到 eduby 接了广告,我会把这一页截下来,作为"我们曾经走错路的证据"。</p>
+        <p>希望那一天不会来。</p>
+      `
+    },
+    {
+      id: 'p5',
+      cat: 'method',
+      catLabel: '学习方法',
+      title: '记忆曲线不是用来"背"的',
+      excerpt: '很多同学把"间隔重复"当成了死记硬背的工具。其实它真正的作用,是让你不再"记住不该记住的"。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '5 分钟',
+      date: '2026-07-20',
+      cover: 'art-4',
+      body: `
+        <p>"艾宾浩斯遗忘曲线"这个词,大家应该都听过。配套的"间隔重复"软件,什么 Anki、SuperMemo,也很火。</p>
+        <p>但我发现,大多数同学用它用错了。</p>
+        <h2>常见错误</h2>
+        <p>把"今天要背的 100 个单词"全部塞进去。然后每天花 2 小时复习。第二天累得半死,第三天放弃。</p>
+        <p>这种用法,本质上还是"死记硬背",只是多了一个 App 的仪式感。</p>
+        <h2>间隔重复真正的作用</h2>
+        <p>它是<strong>过滤器</strong>,不是<strong>注射器</strong>。</p>
+        <p>它的作用是:帮你筛掉那些<em>你不该记住</em>的东西。</p>
+        <blockquote>一个人真正需要长期记住的知识点,其实很少。大部分内容,临场理解就够了。</blockquote>
+        <h2>我的做法</h2>
+        <p>每学完一节,我只往间隔重复里加 3-5 个<em>值得记一辈子</em>的知识点。比如"牛顿第二定律的物理意义"而不是"F=ma 的具体应用"。</p>
+        <p>其他东西?看一遍,理解一遍,会做题就行。不需要"记"。</p>
+        <h2>eduby 怎么做</h2>
+        <p>我们的间隔重复系统会主动帮你"做减法"。你不需要决定"哪些要记"——系统会根据知识点的<em>复用频率</em>自动选出来。</p>
+        <p>让机器做机器擅长的事,让人做人擅长的事。</p>
+      `
+    },
+    {
+      id: 'p6',
+      cat: 'story',
+      catLabel: '学习故事',
+      title: '一个偏科生的高三逆袭:从"语文恐惧"到爱上写作',
+      excerpt: '我曾经最讨厌语文课,觉得它就是"猜出题人想什么"。直到一位老师让我看到了"另一种语文"。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '8 分钟',
+      date: '2026-07-12',
+      cover: 'art-6',
+      body: `
+        <p>我是典型的理科脑。数学物理年级前列,语文,常年班级倒数前十。</p>
+        <p>我以为这辈子和"语文好"无缘了。</p>
+        <h2>那节让我"开窍"的课</h2>
+        <p>高二下学期,换了一个语文老师。他第一堂课没讲课文,只让我们做了一件事:</p>
+        <p>写一段 200 字的小作文。题目是:<em>"你今天最想骂什么"</em>。</p>
+        <p>全班都笑了。我写了一段骂数学题的,大概 4 分钟写完。老师说"很好",然后念给全班听。</p>
+        <p>那一刻我突然明白:语文不是"歌颂",语文是"表达"。</p>
+        <h2>重新理解语文</h2>
+        <p>以前我觉得语文课是"猜出题人想听什么"。现在我觉得,语文课是"把你真正想说的,说得更清楚"。</p>
+        <blockquote>语文是工具,不是学科。它是给所有学科用的"翻译器",把你脑子里的想法,变成别人能听懂的话。</blockquote>
+        <h2>高三上学期,我的语文从 90 涨到 125</h2>
+        <p>不是靠"刷题",是靠"写"。每周写 3-5 篇短东西,什么话题都行,关键是"我得真的想说什么"。</p>
+        <p>考试的时候,我就当那 800 字的作文,是写给一个真实的人看。那个"人",可能是我未来自己,可能是某个陌生人。</p>
+        <h2>eduby 的语文会怎么教</h2>
+        <p>我们不会让你"分析段落大意"。我们会给你真实的话题,让你写;然后告诉你,什么样的表达更"穿透"。</p>
+        <p>语文不是用来考试的。语文是用来<em>活着</em>的。</p>
+      `
+    },
+    {
+      id: 'p7',
+      cat: 'build',
+      catLabel: '做 eduby',
+      title: '我们怎么用 Git,但不"教"你 Git',
+      excerpt: 'eduby 不是 Git 教程。我们只是顺手用一下版本控制,然后把全部精力放在"怎么让你学得更好"上。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '5 分钟',
+      date: '2026-07-05',
+      cover: 'art-3',
+      body: `
+        <p>如果你搜"eduby Git",大概率搜不到任何教程。</p>
+        <p>因为我们不想"教"你 Git——你想学编程,eduby 会教你;但如果你只是想用我们的网站学数学,Git 跟你一点关系都没有。</p>
+        <h2>那为什么我们还在用 Git</h2>
+        <p>因为我们自己写代码的时候需要它。一份代码,改了几百次,谁来记?Git 记。</p>
+        <p>这件事对开发者很重要,对学习者不重要。所以我们把它藏起来了。</p>
+        <blockquote>工具归工具,教育归教育。我们不让工具绑架教育。</blockquote>
+        <h2>那学习者能看到什么</h2>
+        <p>在我们网站的"贡献"页面,你能看到每一行代码的修改记录、谁改的、为什么改。但这不要求你懂 Git。</p>
+        <p>你看到的就是"人话":<em>"修了数学题渲染 bug"</em>、<em>"加了一个新学科:政治"</em>。</p>
+        <h2>我们的设计原则</h2>
+        <p>凡是"对学生没用"的,我们都藏起来。Git、命令行、配置文件、API key……这些属于"开发者"的东西,统统不在你眼前出现。</p>
+        <p>你该看到的,只有:<strong>你今天该学什么</strong>。</p>
+      `
+    },
+    {
+      id: 'p8',
+      cat: 'method',
+      catLabel: '学习方法',
+      title: '把"错题"变成"提分机器"的 3 个步骤',
+      excerpt: '错题本不是抄题用的。一本好的错题本,应该让你下一次见到类似题时,下意识地想起"上次错在哪"。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '6 分钟',
+      date: '2026-06-28',
+      cover: 'art-4',
+      body: `
+        <p>90% 同学的错题本,长这样:抄题 → 写答案 → 合上 → 再也不看。</p>
+        <p>没用。错题本不是抄题用的。它是"未来的你给现在的你的一封信"。</p>
+        <h2>步骤一:写"我错在了哪个想法"</h2>
+        <p>不是写答案,是写<em>你当时脑子里在想什么</em>。</p>
+        <p>比如一道物理题错了,不要写"忘了摩擦力方向"。要写:<strong>"我以为物块向右运动,实际上我忽略了它先减速后反向,这个判断我没做"</strong>。</p>
+        <p>把"知识漏洞"翻译成"我的思维漏洞"。这两个东西不一样。</p>
+        <h2>步骤二:3 天后必须重做一遍</h2>
+        <p>错题本的最大作用,不是"记录",是"重做"。</p>
+        <p>3 天后,合上答案,重新做一遍。如果还错,继续 3 天后再做。直到你能在不参考任何资料的情况下,一次性做对。</p>
+        <blockquote>错题的价值不在于你"见过",而在于你"征服过"。</blockquote>
+        <h2>步骤三:按"题型"归类,不要按"日期"</h2>
+        <p>很多同学的错题本是按日期排的,这是反人性的。日期是"考试时间",不是"学习维度"。</p>
+        <p>应该按"它属于哪个知识点"或者"哪种思维陷阱"归类。</p>
+        <p>eduby 会自动帮你做这件事——你的所有错题,会被聚类成"弱点",而不是"事件流"。</p>
+        <h2>写在最后</h2>
+        <p>一本 100 题的错题本,胜过 10 本 1000 题的练习册。</p>
+        <p>前提是:你愿意"重做"它。</p>
+      `
+    },
+    {
+      id: 'p9',
+      cat: 'meta',
+      catLabel: '随笔',
+      title: '为什么我反对"快乐教育"',
+      excerpt: '"快乐教育"不是"不学"。是"用对的方式学,让学习本身成为回报"。这两件事,99% 的人搞混了。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '4 分钟',
+      date: '2026-06-20',
+      cover: 'art-2',
+      body: `
+        <p>每次有家长在后台留言"我家孩子不想学,你们能不能让他觉得学习是快乐的",我都不知道怎么回。</p>
+        <p>不是不想回,是我怕回完,对方更糊涂。</p>
+        <h2>一个常见的误解</h2>
+        <p>很多人把"快乐教育"理解成"<em>让孩子在学习中感到快乐</em>"。于是想方设法让学习"看起来好玩":加动画、加游戏、加奖励。</p>
+        <p>问题是——学习本身,常常是不快乐的。理解一个新概念、推翻一个旧想法、承认自己错了——这些事都不轻松。</p>
+        <p>如果你试图让所有学习都"快乐",你得到的是:<em>浅薄的成功感</em>,而不是<em>真正的成长</em>。</p>
+        <h2>那 eduby 想做什么</h2>
+        <p>我们想做的是:让学习的"过程"不痛苦,但不假装它的"结果"很轻松。</p>
+        <blockquote>好的教育不是"哄着学",是"让你学得动"。</blockquote>
+        <h2>具体来说</h2>
+        <p>1. <strong>学得动</strong>:路径清晰,永远知道下一步要做什么。<br />
+        2. <strong>看得见</strong>:每次努力都有反馈,不是黑盒。<br />
+        3. <strong>有同伴</strong>:不是孤军奋战,有人一起。</p>
+        <p>这三件事加在一起,学习不会"快乐",但会"值得"。</p>
+        <p>这就够了。</p>
+      `
+    },
+    {
+      id: 'p10',
+      cat: 'story',
+      catLabel: '学习故事',
+      title: '一个"伪学霸"的高考逆袭日记',
+      excerpt: '我从高一被所有人叫"学霸",到高三一模跌出前 100,再到高考回到前十。这是我的真实记录。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '10 分钟',
+      date: '2026-06-12',
+      cover: 'art-1',
+      body: `
+        <p>高一高二,我被叫"学霸"。不是因为我真厉害,是因为高一内容简单,谁都能考前几。</p>
+        <p>到了高三,题目一难,我立刻被打回原形。一模,年级 137 名。</p>
+        <p>这大概是我人生第一次知道:<em>所谓的"学霸"身份,根本不是我的</em>。</p>
+        <h2>我以为我"会",其实我"记"</h2>
+        <p>高一高二我用的方法是:上课听一遍,考前刷一周,考完忘光。</p>
+        <p>这招对简单题有效,因为"记住套路"就够了。但高三的题,套路被拆得稀碎,需要<em>真正理解</em>。</p>
+        <p>我"记"了两年,从来没"懂"过。</p>
+        <h2>我的转变(没有奇迹,只有笨办法)</h2>
+        <p>一模之后,我做了一件事:从零开始,把每一道我做错的题,都重新讲给自己听一遍。</p>
+        <p>不是"看答案",是"<em>说</em>出来"。如果说不出来,说明没懂,回去重看。</p>
+        <p>每天 2 小时,坚持了 3 个月。</p>
+        <blockquote>没有所谓"开窍",只有"重复把不懂的东西搞懂"。</blockquote>
+        <h2>高考</h2>
+        <p>年级第 7。</p>
+        <p>不夸张。也没觉得特别激动。只是觉得——这才是"我"应该有的位置,前面两年那个"伪学霸",是假的我。</p>
+        <h2>eduby 想做的</h2>
+        <p>就是让"伪学霸"少一点。让你高一就学到"理解",而不是"记忆"。</p>
+        <p>不要像我一样,高三才明白。</p>
+      `
+    },
+    {
+      id: 'p11',
+      cat: 'build',
+      catLabel: '做 eduby',
+      title: '给 eduby 写第一行代码的那个晚上',
+      excerpt: '凌晨 3 点,我写出了 eduby 的第一行 HTML。然后删了。然后又写了出来。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '5 分钟',
+      date: '2026-06-05',
+      cover: 'art-5',
+      body: `
+        <p>2024 年某个高二晚自习,我逃了英语课,跑回宿舍,打开笔记本电脑。</p>
+        <p>不是为了玩游戏。是为了写一个东西。</p>
+        <h2>起因</h2>
+        <p>那天我数学考砸了。错的题,我看着答案"懂了",但我知道我没懂——我只是"记住了步骤"。</p>
+        <p>我想:如果有一个网站,在我做错题时,不告诉我"答案是什么",而是告诉我"<em>你卡在了哪个想法上</em>"——多好。</p>
+        <p>于是我打开了 Notepad,写了一行:</p>
+        <p><code>&lt;h1&gt;eduby&lt;/h1&gt;</code></p>
+        <h2>然后我删了它</h2>
+        <p>因为我觉得,这种东西应该早就有人做了。肯定是我没找到,不是没人做。</p>
+        <p>后来我搜了一圈。</p>
+        <p>没找到。真的没找到。</p>
+        <blockquote>做这个的人应该是谁?如果没人做,那"我"就是那个"应该做的人"。</blockquote>
+        <h2>凌晨 3 点</h2>
+        <p>我又写了一次。这次没删。</p>
+        <p>那个 HTML 早就被重写了 100 遍,但那一刻的感觉,到现在还记得——"我正在做一件我应该做的事"。</p>
+        <h2>两年后</h2>
+        <p>eduby 现在长成了你看到的样子。有几千行代码、几百篇文章、一个完整的论坛、还有一群相信它的人。</p>
+        <p>但每次发新版本,我都会想起那个高一逃课回宿舍的晚上。</p>
+        <p>那是我作为"eduby 团队"的开始。</p>
+      `
+    },
+    {
+      id: 'p12',
+      cat: 'method',
+      catLabel: '学习方法',
+      title: '为什么"提前预习"对大多数人是浪费时间',
+      excerpt: '我曾经每周日花 4 小时预习下周新课,直到我发现:90% 的预习是"假努力",真正有效的只有 1 种。',
+      author: 'eduby 团队',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+      avatarText: 'e',
+      readTime: '5 分钟',
+      date: '2026-05-28',
+      cover: 'art-6',
+      body: `
+        <p>从小学到高中,"预习"被当作一种美德。老师表扬、家长期盼、同学羡慕。</p>
+        <p>我曾经也是"预习派"——每周末花 4 小时,提前看下一周要学的内容。</p>
+        <p>直到高三,我的同桌(不预习)比我考得还高。我开始怀疑。</p>
+        <h2>90% 的预习在做一件事:看答案</h2>
+        <p>大多数同学的预习,是"把课本读一遍"。这等于什么?</p>
+        <p>等于你<em>提前看了答案</em>。等你上课时,老师讲的内容,你都"已经见过"——然后大脑的判断是:<em>我已经会了</em>。</p>
+        <p>但其实你只是"眼熟"。你并没有真的懂。</p>
+        <blockquote>预习最大的副作用,不是"没用",是"让你产生已经会的错觉"。</blockquote>
+        <h2>真正有效的预习只有 1 种</h2>
+        <p>不读正文。只做一件事:<strong>看目录和小标题,在脑子里猜"这章要讲什么"</strong>。</p>
+        <p>然后带着"我的猜测"去上课,听完再对比:"我猜对了吗?我漏了什么?"</p>
+        <p>这叫"主动听课",不是"被动预习"。区别在于——你是带着<em>问题</em>来,还是带着<em>答案</em>来。</p>
+        <h2>eduby 怎么做</h2>
+        <p>我们不让你"预习"。我们让你在上课前看一段 2 分钟的"知识地图"——只告诉你"这章有 3 个核心概念",然后问你这 3 个概念"你猜是什么"。</p>
+        <p>你的猜测会被记住,上完课后来对比。</p>
+        <p>这才叫有效的"提前准备"——不是提前看答案,是提前<em>激活好奇心</em>。</p>
+        <h2>一句话总结</h2>
+        <p>预习不是"提前学",是"提前想"。</p>
+        <p>想 ≠ 学。学会让你"会",想会让你"问"。</p>
+      `
+    },
+  ];
+
+  // ============== RENDER LIST ==============
+  function renderList(filter) {
+    const grid = document.getElementById('blogGrid');
+    const filtered = filter === 'all' ? posts : posts.filter(p => p.cat === filter);
+    grid.innerHTML = filtered.map((p, i) => `
+      <a class="post-card" href="?id=${p.id}" data-id="${p.id}">
+        <div class="post-cover">
+          <div class="cover-art ${p.cover}"></div>
+          <span class="cat">${p.catLabel}</span>
+        </div>
+        <div class="post-body">
+          <h3>${p.title}</h3>
+          <p class="excerpt">${p.excerpt}</p>
+          <div class="post-meta">
+            <div class="author">
+              <span class="avatar" style="background:${p.avatarColor}">${p.avatarText}</span>
+              <span>${p.author} · ${formatDate(p.date)}</span>
+            </div>
+            <div class="meta-right">
+              <span>⏱ ${p.readTime}</span>
+            </div>
+          </div>
+        </div>
+      </a>
+    `).join('');
+    // Stagger reveal
+    const cards = grid.querySelectorAll('.post-card');
+    cards.forEach(c => c.classList.add('card-pre'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, idx) => {
+        if (e.isIntersecting) {
+          e.target.style.transitionDelay = (idx * 0.05) + 's';
+          e.target.classList.remove('card-pre');
+          e.target.classList.add('card-in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    cards.forEach(c => io.observe(c));
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const sameYear = d.getFullYear() === now.getFullYear();
+    const mm = d.getMonth() + 1;
+    const dd = d.getDate();
+    // 跨年必须带年份
+    if (!sameYear) return `${d.getFullYear()} 年 ${mm} 月 ${dd} 日`;
+    // 算"X 天前"
+    const ms = now - d;
+    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+    if (days < 0) return `${mm} 月 ${dd} 日`;
+    if (days === 0) return '今天';
+    if (days === 1) return '昨天';
+    if (days === 2) return '前天';
+    if (days < 7) return `${days} 天前`;
+    if (days < 30) return `${Math.floor(days / 7)} 周前`;
+    // 超过一个月回到具体日期
+    return `${mm} 月 ${dd} 日`;
+  }
+
+  // ============== RENDER DETAIL ==============
+  function renderDetail(id) {
+    const idx = posts.findIndex(p => p.id === id);
+    if (idx === -1) {
+      window.location.href = 'blog.html';
+      return;
+    }
+    const p = posts[idx];
+    const prev = posts[(idx - 1 + posts.length) % posts.length];
+    const next = posts[(idx + 1) % posts.length];
+    const detail = document.getElementById('postDetail');
+    detail.innerHTML = `
+      <a href="blog.html" class="back">← 返回博客</a>
+      <span class="cat-badge">${p.catLabel}</span>
+      <h1>${p.title}</h1>
+      <div class="meta">
+        <div class="author">
+          <span class="avatar" style="background:${p.avatarColor}">${p.avatarText}</span>
+          <span>${p.author}</span>
+        </div>
+        <span>${formatDate(p.date)}</span>
+        <span>⏱ ${p.readTime}</span>
+      </div>
+      <div class="post-body-content">${p.body}</div>
+      <div class="post-nav">
+        <a href="?id=${prev.id}">
+          <div class="label">← 上一篇</div>
+          <div class="title">${prev.title}</div>
+        </a>
+        <a href="?id=${next.id}" style="text-align:right;">
+          <div class="label">下一篇 →</div>
+          <div class="title">${next.title}</div>
+        </a>
+      </div>
+    `;
+    window.scrollTo(0, 0);
+  }
+
+  // ============== ROUTER ==============
+  function route() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) {
+      document.getElementById('view-list').style.display = 'none';
+      document.getElementById('view-detail').style.display = 'block';
+      renderDetail(id);
+    } else {
+      document.getElementById('view-list').style.display = '';
+      document.getElementById('view-detail').style.display = 'none';
+      renderList(currentFilter);
+    }
+  }
+
+  let currentFilter = 'all';
+  document.getElementById('filterBar').addEventListener('click', (e) => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentFilter = tab.dataset.cat;
+    renderList(currentFilter);
+  });
+
+  // Nav scroll
+  const nav = document.querySelector('.nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  window.addEventListener('popstate', route);
+  route();
+</script>
+
+</body>
+</html>

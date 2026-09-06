@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>论坛 · eduby</title>
+<meta name="description" content="eduby 学习社区:提问、讨论、分享。" />
+<style>
+  :root {
+    --bg: #fbfbfd;
+    --bg-soft: #f5f5f7;
+    --ink: #1d1d1f;
+    --ink-soft: #6e6e73;
+    --ink-faint: #86868b;
+    --line: rgba(0,0,0,0.08);
+    --accent: #0071e3;
+    --gradient-1: linear-gradient(135deg, #a78bfa 0%, #3b82f6 50%, #06b6d4 100%);
+    --gradient-2: linear-gradient(135deg, #f472b6 0%, #a78bfa 50%, #60a5fa 100%);
+    --gradient-3: linear-gradient(135deg, #34d399 0%, #60a5fa 100%);
+    --gradient-4: linear-gradient(135deg, #fbbf24 0%, #f472b6 100%);
+    --shadow-sm: 0 4px 14px rgba(0,0,0,0.04);
+    --shadow-md: 0 10px 40px rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+                 "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(251,251,253,0.72);
+    border-bottom: 1px solid var(--line);
+    transition: background 0.3s ease;
+  }
+  .nav.scrolled { background: rgba(251,251,253,0.88); }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 17px; letter-spacing: -0.01em;
+    color: var(--ink); text-decoration: none;
+  }
+  .brand-mark {
+    width: 24px; height: 24px; border-radius: 7px;
+    background: var(--ink); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; letter-spacing: -0.04em; line-height: 1;
+    position: relative;
+  }
+  .brand-mark::after {
+    content: ""; position: absolute; top: 4px; right: 4px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #a78bfa; box-shadow: 0 0 0 2px var(--ink);
+  }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--ink-soft); text-decoration: none; font-size: 14px;
+    transition: color 0.2s ease;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.active { color: var(--ink); font-weight: 500; }
+  .nav-cta {
+    padding: 8px 16px; background: var(--ink); color: #fff;
+    border-radius: 999px; font-size: 14px; text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-cta:hover { transform: translateY(-1px); opacity: 0.9; }
+  @media (max-width: 720px) { .nav-links { display: none; } }
+
+  /* HERO */
+  .page-hero {
+    padding: 140px 24px 60px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .page-hero::before {
+    content: ""; position: absolute; top: -10%; left: 50%;
+    transform: translateX(-50%);
+    width: 1000px; height: 1000px;
+    background: radial-gradient(closest-side,
+      rgba(244,114,182,0.15) 0%, rgba(167,139,250,0.08) 30%, transparent 70%);
+    pointer-events: none;
+    animation: hero-float 14s ease-in-out infinite;
+  }
+  @keyframes hero-float {
+    0%, 100% { transform: translate(-50%, 0) scale(1); }
+    50% { transform: translate(-50%, -20px) scale(1.04); }
+  }
+  .page-hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: 13px; color: var(--ink-soft);
+    margin-bottom: 24px; box-shadow: var(--shadow-sm);
+  }
+  .page-hero .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #f472b6;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+  }
+  .page-hero h1 {
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1.05; letter-spacing: -0.04em;
+    font-weight: 700; margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+  .gradient-text {
+    background: var(--gradient-2);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; background-size: 200% 200%;
+    animation: gradient-shift 6s ease-in-out infinite;
+  }
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .page-hero p {
+    font-size: clamp(16px, 1.8vw, 19px);
+    color: var(--ink-soft); max-width: 560px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 60px 24px 100px; position: relative; }
+
+  /* TOP BAR: filter + new post */
+  .list-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-pill {
+    padding: 6px 14px; background: #fff;
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: 13px; color: var(--ink-soft);
+    cursor: pointer; transition: all 0.2s ease;
+  }
+  .filter-pill:hover { color: var(--ink); border-color: rgba(0,0,0,0.15); }
+  .filter-pill.active {
+    background: var(--ink); color: #fff; border-color: var(--ink);
+  }
+  .btn-new {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px; background: var(--gradient-2);
+    color: #fff; border-radius: 999px;
+    font-size: 14px; font-weight: 500; text-decoration: none;
+    border: none; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn-new:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(244,114,182,0.3);
+  }
+
+  /* POST LIST */
+  .post-list { display: flex; flex-direction: column; gap: 12px; }
+  .post-row {
+    display: flex; align-items: center; gap: 20px;
+    padding: 20px 24px; background: #fff;
+    border: 1px solid var(--line); border-radius: 16px;
+    cursor: pointer; text-decoration: none; color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .post-row:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+    border-color: rgba(0,0,0,0.05);
+  }
+  .post-row .cat-tag {
+    flex-shrink: 0; padding: 4px 10px;
+    background: var(--bg-soft);
+    border-radius: 8px;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+  .post-row .info { flex: 1; min-width: 0; }
+  .post-row .info h3 {
+    font-size: 16px; font-weight: 600;
+    letter-spacing: -0.01em; line-height: 1.3;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .post-row .info .meta {
+    display: flex; gap: 14px; font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .post-row .stats {
+    flex-shrink: 0; display: flex; flex-direction: column;
+    align-items: flex-end; gap: 4px;
+    font-size: 12px; color: var(--ink-faint);
+    min-width: 80px;
+  }
+  .post-row .stats .replies { font-weight: 600; color: var(--ink); font-size: 14px; }
+  .post-row .author-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  @media (max-width: 640px) {
+    .post-row { flex-wrap: wrap; }
+    .post-row .stats { width: 100%; flex-direction: row; justify-content: flex-start; }
+  }
+
+  /* empty state */
+  .empty-state {
+    text-align: center; padding: 80px 24px;
+    color: var(--ink-faint);
+  }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 18px; color: var(--ink); margin-bottom: 8px; font-weight: 600; }
+  .empty-state p { font-size: 14px; }
+
+  /* DETAIL VIEW */
+  .thread-detail { padding: 140px 24px 100px; }
+  .thread-detail .back {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--ink-soft); text-decoration: none;
+    font-size: 14px; margin-bottom: 24px;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+  .thread-detail .back:hover { color: var(--ink); transform: translateX(-2px); }
+  .thread-detail .cat-pill {
+    display: inline-block; padding: 4px 12px;
+    background: rgba(244,114,182,0.15);
+    color: #be185d; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .thread-detail h1 {
+    font-size: clamp(28px, 4.5vw, 40px);
+    line-height: 1.2; letter-spacing: -0.03em;
+    font-weight: 700; margin-bottom: 20px;
+  }
+  .thread-op {
+    display: flex; gap: 16px; padding: 24px;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 16px; margin-bottom: 32px;
+  }
+  .thread-op .op-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .thread-op .op-info { flex: 1; }
+  .thread-op .op-info .who {
+    font-weight: 600; font-size: 14px; margin-bottom: 2px;
+  }
+  .thread-op .op-info .when {
+    font-size: 12px; color: var(--ink-faint); margin-bottom: 16px;
+  }
+  .thread-op .op-info .body-text {
+    font-size: 15px; line-height: 1.7; color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .reply-section { margin-top: 32px; }
+  .reply-section h3 {
+    font-size: 14px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--ink-faint);
+    margin-bottom: 16px;
+  }
+  .reply {
+    display: flex; gap: 14px; padding: 20px 0;
+    border-top: 1px solid var(--line);
+  }
+  .reply .r-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .reply .r-body { flex: 1; }
+  .reply .r-body .who {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .reply .r-body .who strong { font-size: 14px; }
+  .reply .r-body .who span { font-size: 12px; color: var(--ink-faint); }
+  .reply .r-body .body-text {
+    font-size: 15px; line-height: 1.7; color: var(--ink-soft);
+    white-space: pre-wrap;
+  }
+
+  /* REPLY FORM */
+  .reply-form {
+    margin-top: 32px; padding: 24px;
+    background: var(--bg-soft);
+    border-radius: 16px;
+  }
+  .reply-form .who-row {
+    display: flex; gap: 12px; align-items: center;
+    margin-bottom: 16px;
+  }
+  .reply-form .who-row input {
+    flex: 1; padding: 10px 14px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: #fff; font-size: 14px;
+    font-family: inherit; color: var(--ink);
+  }
+  .reply-form .who-row input:focus { outline: 2px solid #a78bfa; outline-offset: 1px; }
+  .reply-form textarea {
+    width: 100%; min-height: 120px;
+    padding: 14px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: #fff; font-size: 15px; line-height: 1.6;
+    font-family: inherit; color: var(--ink);
+    resize: vertical;
+  }
+  .reply-form textarea:focus { outline: 2px solid #a78bfa; outline-offset: 1px; }
+  .reply-form .actions {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 12px;
+  }
+  .reply-form .actions .hint { font-size: 12px; color: var(--ink-faint); }
+  .btn-submit {
+    padding: 10px 22px; background: var(--ink); color: #fff;
+    border: none; border-radius: 999px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .btn-submit:hover { transform: translateY(-1px); opacity: 0.9; }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* MODAL (new post) */
+  .modal {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(20px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal.open { opacity: 1; pointer-events: auto; }
+  .modal-card {
+    background: #fff; border-radius: 24px;
+    padding: 32px 32px 28px;
+    max-width: 520px; width: 100%;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+    transform: scale(0.92) translateY(20px);
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .modal.open .modal-card { transform: scale(1) translateY(0); }
+  .modal h3 {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+    margin-bottom: 20px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--ink-soft); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: #fff; font-size: 15px; line-height: 1.5;
+    font-family: inherit; color: var(--ink);
+    resize: vertical;
+  }
+  .field textarea { min-height: 100px; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: 2px solid #a78bfa; outline-offset: 1px;
+  }
+  .modal-actions {
+    display: flex; gap: 10px; justify-content: flex-end;
+    margin-top: 24px;
+  }
+  .btn-cancel {
+    padding: 10px 18px; background: transparent;
+    color: var(--ink-soft); border: 1px solid var(--line);
+    border-radius: 999px; font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-cancel:hover { color: var(--ink); }
+  .btn-primary {
+    padding: 10px 22px; background: var(--ink); color: #fff;
+    border: none; border-radius: 999px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .btn-primary:hover { transform: translateY(-1px); opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff;
+    padding: 12px 24px; border-radius: 999px;
+    font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg-soft);
+    padding: 60px 24px 30px; border-top: 1px solid var(--line);
+  }
+  .footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+  }
+  @media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+  .footer-brand p { color: var(--ink-soft); font-size: 14px; margin-top: 12px; max-width: 280px; }
+  .footer-col h4 {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--ink-faint); margin-bottom: 16px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a {
+    color: var(--ink-soft); text-decoration: none; font-size: 14px;
+    transition: color 0.2s ease;
+  }
+  .footer-col a:hover, .footer-col a.active { color: var(--ink); }
+  .footer-bottom {
+    max-width: 1200px; margin: 40px auto 0; padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; flex-wrap: wrap;
+    gap: 16px; font-size: 13px; color: var(--ink-faint);
+  }
+
+  /* reveal animation */
+  .post-row, .filter-pill {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease,
+                border-color 0.2s ease;
+  }
+  .post-row.card-in, .filter-pill.card-in { opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="https://eduby.top" target="_blank" rel="noopener" class="brand">
+      <span class="brand-mark" aria-hidden="true">e</span>
+      <span>eduby</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">主页</a></li>
+      <li><a href="blog.html">博客</a></li>
+      <li><a href="forum.html" class="active">论坛</a></li>
+    </ul>
+    <a href="index.html#cta" class="nav-cta">加入我们</a>
+  </div>
+</nav>
+
+<!-- LIST VIEW -->
+<div id="view-list">
+  <header class="page-hero">
+    <div class="eyebrow"><span class="dot"></span><span>一个有问有答的地方</span></div>
+    <h1>一起聊聊<br /><span class="gradient-text">学习这件事。</span></h1>
+    <p>提问、答疑、分享笔记。学习不是孤军奋战,这里有人陪你。</p>
+  </header>
+
+  <section>
+    <div class="container">
+      <div class="list-bar">
+        <div class="filter-pills" id="filterBar">
+          <span class="filter-pill active" data-cat="all">全部</span>
+          <span class="filter-pill" data-cat="subject">学科讨论</span>
+          <span class="filter-pill" data-cat="method">学习方法</span>
+          <span class="filter-pill" data-cat="resource">资源分享</span>
+          <span class="filter-pill" data-cat="feedback">反馈建议</span>
+        </div>
+        <button class="btn-new" id="btnNew">+ 发新帖</button>
+      </div>
+      <div class="post-list" id="postList"></div>
+    </div>
+  </section>
+</div>
+
+<!-- DETAIL VIEW -->
+<div id="view-detail" style="display:none;">
+  <div class="container thread-detail" id="threadDetail"></div>
+</div>
+
+<!-- NEW POST MODAL -->
+<div class="modal" id="newPostModal" data-modal-box aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <h3>发新帖</h3>
+    <form id="newPostForm">
+      <div class="field">
+        <label>标题</label>
+        <input type="text" id="npTitle" required maxlength="80" placeholder="说清楚你想聊什么..." />
+      </div>
+      <div class="field">
+        <label>分类</label>
+        <select id="npCat" required>
+          <option value="subject">学科讨论</option>
+          <option value="method">学习方法</option>
+          <option value="resource">资源分享</option>
+          <option value="feedback">反馈建议</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>你的昵称</label>
+        <input type="text" id="npAuthor" required maxlength="20" placeholder="比如:高二三班小明" />
+      </div>
+      <div class="field">
+        <label>正文</label>
+        <textarea id="npBody" required maxlength="2000" placeholder="把背景、问题、你想得到什么帮助,说清楚..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" data-modal-close>取消</button>
+        <button type="submit" class="btn-primary">发布</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="https://eduby.top" target="_blank" rel="noopener" class="brand">
+        <span class="brand-mark" aria-hidden="true">e</span>
+        <span>eduby</span>
+      </a>
+      <p>一个由学习者共建的开源教育项目。Made with care by high schoolers, for high schoolers.</p>
+    </div>
+    <div class="footer-col">
+      <h4>学习</h4>
+      <ul>
+        <li><a href="blog.html">博客</a></li>
+        <li><a href="forum.html" class="active">论坛</a></li>
+        <li><a href="index.html#subjects">学科</a></li>
+        <li><a href="index.html#features">特色</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>贡献</h4>
+      <ul>
+        <li><a href="#">eduby 仓库</a></li>
+        <li><a href="#">贡献指南</a></li>
+        <li><a href="#">Roadmap</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>关于</h4>
+      <ul>
+        <li><a href="#">团队</a></li>
+        <li><a href="blog.html">博客</a></li>
+        <li><a href="#">联系我们</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 eduby · Licensed under MIT</span>
+    <span>Built with ☕ by students, for students.</span>
+  </div>
+</footer>
+
+<script>
+  // ============== SEED DATA ==============
+  const seedPosts = [
+    {
+      id: 't1', cat: 'subject', catLabel: '学科讨论',
+      title: '数学大题最后一问总是没思路,怎么办?',
+      author: '小桃', avatarText: '桃',
+      avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6)',
+      body: '平时基础题都对,但是到了大题最后一问就完全没思路。看了答案又觉得"哦原来是这样",但下次还是不会。\n\n有没有什么方法能训练这种"创造性"思路?',
+      ts: Date.now() - 1000 * 60 * 12,
+      replies: [
+        {
+          id: 'r1', author: '阿柯', avatarText: '柯',
+          avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+          body: '我以前也是这样。后来发现一个方法:看到答案后,先合上,自己再推一遍"如果是我,我该怎么想到这一步"。想不出来就回去看,反复 3 次基本能记住思路。',
+          ts: Date.now() - 1000 * 60 * 8,
+        },
+        {
+          id: 'r2', author: '老周', avatarText: '周',
+          avatarColor: 'linear-gradient(135deg, #1d1d1f, #3a3a3c)',
+          body: '补充:大题最后一问通常是"前面所有知识点的综合"。所以关键是——前面的每一问,你都要真的搞懂,而不是抄答案。',
+          ts: Date.now() - 1000 * 60 * 3,
+        },
+      ],
+    },
+    {
+      id: 't2', cat: 'method', catLabel: '学习方法',
+      title: '分享一个我用 3 个月把英语从 80 提到 130 的方法',
+      author: '阿柯', avatarText: '柯',
+      avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+      body: '先说背景:高一英语一直 80 多,高考模拟 130。\n\n方法很简单也很笨:\n1. 每天 30 分钟,只做一件事——读一篇英语原文(不是教材,是新闻/科普/小说都行)\n2. 遇到生词不要查,先猜意思\n3. 读完再查词,记到本子上\n4. 第二天早上花 5 分钟过一遍昨天的生词\n\n坚持 3 个月,你猜怎么着?阅读理解基本不用看第二遍,完形填空凭"语感"就能做。\n\n最关键的点:不要背单词书,要在语境里学。',
+      ts: Date.now() - 1000 * 60 * 60 * 4,
+      replies: [
+        {
+          id: 'r3', author: '小桃', avatarText: '桃',
+          avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6)',
+          body: '深有同感!背单词书我从来没坚持超过两周,这个方法反而能坚持。',
+          ts: Date.now() - 1000 * 60 * 60 * 3,
+        },
+      ],
+    },
+    {
+      id: 't3', cat: 'resource', catLabel: '资源分享',
+      title: '推荐几个我私藏很久的免费学习网站',
+      author: '小诺', avatarText: '诺',
+      avatarColor: 'linear-gradient(135deg, #34d399, #10b981)',
+      body: '整理了一下我用过觉得真的有帮助的(都是免费的):\n\n📚 3Blue1Brown(B站有):数学可视化天花板,把微积分/线代讲成动画片\n🌍 可汗学院:全科,从小学到大学,英文为主,内容扎实\n🔬 PhET:物理化学生物模拟实验,鼠标点一下就能做\n📖 古诗文网:查古诗原文/翻译,比百度靠谱\n\n不推荐任何要付费的,也不推荐任何"速成"的——学习没速成。',
+      ts: Date.now() - 1000 * 60 * 60 * 8,
+      replies: [],
+    },
+    {
+      id: 't4', cat: 'subject', catLabel: '学科讨论',
+      title: '物理:电场和电势到底什么关系?',
+      author: '高一小白', avatarText: '白',
+      avatarColor: 'linear-gradient(135deg, #f472b6, #a78bfa)',
+      body: '老师讲完这块我就一直没搞懂。电场强度 E 和电势 V 看起来都是描述"电的",但单位、计算方法都不一样。它们到底什么关系?什么时候用 E,什么时候用 V?',
+      ts: Date.now() - 1000 * 60 * 60 * 12,
+      replies: [
+        {
+          id: 'r4', author: '老周', avatarText: '周',
+          avatarColor: 'linear-gradient(135deg, #1d1d1f, #3a3a3c)',
+          body: '我教你看个类比:电场强度 E 像"山的陡峭程度",电势 V 像"山的高度"。陡的地方(梯度大)E 大;高的地方 V 大;E 其实是 V 的"导数"(梯度)。\n\n求"力"用 E(因为 F=qE);求"能量"用 V(因为 Ep=qV)。',
+          ts: Date.now() - 1000 * 60 * 60 * 10,
+        },
+      ],
+    },
+    {
+      id: 't5', cat: 'feedback', catLabel: '反馈建议',
+      title: '希望 eduby 能加一个"错题本"功能',
+      author: '热心同学', avatarText: '❤',
+      avatarColor: 'linear-gradient(135deg, #fb7185, #f59e0b)',
+      body: '用了两周 eduby,体验很棒!一个小建议:能不能加一个错题本?\n\n我做题时经常把错的题截屏,但事后找起来很麻烦。如果系统能自动记录我做错的题,并按"知识点"分类,以后复习就方便多了。',
+      ts: Date.now() - 1000 * 60 * 60 * 30,
+      replies: [
+        {
+          id: 'r5', author: '小桃', avatarText: '桃',
+          avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6)',
+          body: '我们已经在做了!预计下个版本会上线,叫"我的弱点"。会自动聚类你的错题背后的知识点,推荐针对性练习。',
+          ts: Date.now() - 1000 * 60 * 60 * 28,
+        },
+      ],
+    },
+    {
+      id: 't6', cat: 'subject', catLabel: '学科讨论',
+      title: '化学平衡移动到底怎么看?Kc/Kp 把我搞晕了',
+      author: '高三理姐', avatarText: '理',
+      avatarColor: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+      body: '老师讲完化学平衡这章,我感觉我懂了。但一做题就懵,特别是涉及 Kc 和 Kp 转换的。\n\n有没有大佬能用"人话"给我讲讲这两个到底是什么关系?',
+      ts: Date.now() - 1000 * 60 * 60 * 18,
+      replies: [
+        {
+          id: 'r6', author: '阿柯', avatarText: '柯',
+          avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+          body: '一句话:Kc 用浓度算,Kp 用压强算。它们描述的是<em>同一个平衡</em>,只是量纲不同。转换的时候注意单位。',
+          ts: Date.now() - 1000 * 60 * 60 * 16,
+        },
+        {
+          id: 'r7', author: '老周', avatarText: '周',
+          avatarColor: 'linear-gradient(135deg, #1d1d1f, #3a3a3c)',
+          body: '推荐个思路:别记公式,记"为什么平衡"。平衡的本质是"正反应速度 = 逆反应速度"。Kc/Kp 是这个等式的数学表达。',
+          ts: Date.now() - 1000 * 60 * 60 * 14,
+        },
+      ],
+    },
+    {
+      id: 't7', cat: 'method', catLabel: '学习方法',
+      title: '高三 6 科时间怎么分配?我的"分块轮换"表',
+      author: '高三小满', avatarText: '满',
+      avatarColor: 'linear-gradient(135deg, #f472b6, #a78bfa)',
+      body: '高三最头疼的不是"学什么",是"先学哪个"。\n\n我用了一个"分块轮换"的方法,效果还可以:\n\n周一三五上午:数学物理(逻辑型)\n周二四六上午:语文英语(记忆型)\n下午统一做真题(无论哪科)\n晚上复习当天错题\n\n核心思路:<em>不让自己连续 2 小时做同一类事</em>。大脑会疲劳,效率会掉。\n\n有兴趣的可以试试,但每个人节奏不一样,仅供参考。',
+      ts: Date.now() - 1000 * 60 * 60 * 24,
+      replies: [
+        {
+          id: 'r8', author: '小桃', avatarText: '桃',
+          avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6)',
+          body: '这个思路我认可!我试过类似的,关键是"切换"本身也是休息。',
+          ts: Date.now() - 1000 * 60 * 60 * 20,
+        },
+      ],
+    },
+    {
+      id: 't8', cat: 'resource', catLabel: '资源分享',
+      title: '语文作文素材库,我自己整理的 200 个万金油例子',
+      author: '语文课代表', avatarText: '语',
+      avatarColor: 'linear-gradient(135deg, #fb7185, #f59e0b)',
+      body: '整理了 200 个作文素材,涵盖:<em>坚持/创新/家国/科技/失败/选择/平凡/孤独</em> 等主题。\n\n每个素材有:适用主题、原文片段、可用方向(议论文/记叙文)、一句话点评。\n\n需要的同学回帖我发网盘链接。',
+      ts: Date.now() - 1000 * 60 * 60 * 36,
+      replies: [
+        {
+          id: 'r9', author: '高一小白', avatarText: '白',
+          avatarColor: 'linear-gradient(135deg, #f472b6, #a78bfa)',
+          body: '求链接!麻烦发一下,谢谢!',
+          ts: Date.now() - 1000 * 60 * 60 * 30,
+        },
+        {
+          id: 'r10', author: '高三理姐', avatarText: '理',
+          avatarColor: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+          body: '+1 想要',
+          ts: Date.now() - 1000 * 60 * 60 * 28,
+        },
+      ],
+    },
+    {
+      id: 't9', cat: 'subject', catLabel: '学科讨论',
+      title: '数学压轴题是不是都有"套路"?我整理了 30 个',
+      author: '数学狂热', avatarText: '数',
+      avatarColor: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+      body: '做了 3 年高考真题,我发现数学压轴题真的有"套路"。\n\n不是"死记硬背"的套路,是"思维模式":\n- 看到"零点个数"→ 想到函数图像\n- 看到"不等式恒成立"→ 分离参数\n- 看到"数列递推"→ 找通项结构\n- ...\n\n我整理了 30 个,每个配 1-2 道高考真题,以及"为什么这步这么想"的分析。\n\n有需要的同学可以看看,顺便帮我补充。',
+      ts: Date.now() - 1000 * 60 * 60 * 48,
+      replies: [],
+    },
+    {
+      id: 't10', cat: 'resource', catLabel: '资源分享',
+      title: '发现一个超好用的英语单词 App(免费)',
+      author: '英语学姐', avatarText: '英',
+      avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+      body: '用过太多单词 App(百词斩/扇贝/墨墨/Anki),最后留下来的是 <strong>Quizlet</strong>。\n\n为什么:免费版就够用、社区里有别人整理好的"高考词表/四级词表"、可以导入自己的生词本。\n\n不是广告,真的觉得好用。',
+      ts: Date.now() - 1000 * 60 * 60 * 60,
+      replies: [
+        {
+          id: 'r11', author: '阿柯', avatarText: '柯',
+          avatarColor: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+          body: '+1 我也在用,主要是它不用强制每天打卡,适合我这种懒人。',
+          ts: Date.now() - 1000 * 60 * 60 * 58,
+        },
+      ],
+    },
+    {
+      id: 't11', cat: 'feedback', catLabel: '反馈建议',
+      title: 'eduby 的搜索功能能加个"模糊匹配"吗?',
+      author: '细心的同学', avatarText: '心',
+      avatarColor: 'linear-gradient(135deg, #1d1d1f, #3a3a3c)',
+      body: '用了 eduby 的搜索,发现必须打完整的关键词才能搜到。\n\n比如我想搜"电场",打"电场"能搜到,但打"电"或者"场"就搜不到。希望能像 Google 那样,输一半也能匹配。\n\n另外,搜索结果里能不能显示一下这个知识点在哪个学科?现在有点混淆。',
+      ts: Date.now() - 1000 * 60 * 60 * 72,
+      replies: [
+        {
+          id: 'r12', author: 'eduby 团队', avatarText: 'e',
+          avatarColor: 'linear-gradient(135deg, #a78bfa, #3b82f6, #06b6d4)',
+          body: '感谢反馈!模糊匹配和学科标签我们都在排期,预计 v1.2 上线。',
+          ts: Date.now() - 1000 * 60 * 60 * 70,
+        },
+      ],
+    },
+    {
+      id: 't12', cat: 'subject', catLabel: '学科讨论',
+      title: '政治大题怎么答能拿高分?老师没教的几个"潜规则"',
+      author: '政治小能手', avatarText: '政',
+      avatarColor: 'linear-gradient(135deg, #f43f5e, #7c3aed)',
+      body: '政治大题是"性价比最高"的题型——掌握套路,能稳拿 80% 的分。\n\n几个老师不爱明说但很好用的"潜规则":\n\n1. <strong>开头要"扣帽子"</strong>:不管什么题,先写"这反映了..."的判断句,占 1-2 分\n2. <strong>分点要"层次化"</strong>:不要"第一/第二/第三",用"<em>从...看/从...看/从...看</em>"\n3. <strong>材料要"关键词化"</strong>:抄材料的关键词,不抄整句\n4. <strong>结尾要"回到题"</strong>:用一句升华的话,呼应材料主题\n\n这几个小技巧加起来,大题能多拿 5-8 分。',
+      ts: Date.now() - 1000 * 60 * 60 * 96,
+      replies: [
+        {
+          id: 'r13', author: '语文课代表', avatarText: '语',
+          avatarColor: 'linear-gradient(135deg, #fb7185, #f59e0b)',
+          body: '"扣帽子"这个说法太形象了,哈哈哈!我每次都忘了写。',
+          ts: Date.now() - 1000 * 60 * 60 * 90,
+        },
+      ],
+    },
+  ];
+
+  // ============== STORAGE ==============
+  const STORE_KEY = 'eduby.forum.v1';
+  function loadPosts() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return null;
+  }
+  function savePosts(posts) {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(posts)); } catch (e) {}
+  }
+  // Initialize from seed if empty
+  let posts = loadPosts();
+  if (!posts) { posts = seedPosts; savePosts(posts); }
+
+  // ============== HELPERS ==============
+  function timeAgo(ts) {
+    const now = Date.now();
+    const diff = now - ts;
+    if (diff < 0) return '刚刚';
+    const sec = Math.floor(diff / 1000);
+    if (sec < 30) return '刚刚';
+    if (sec < 60) return `${sec} 秒前`;
+    const m = Math.floor(sec / 60);
+    if (m < 60) return `${m} 分钟前`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} 小时前`;
+    const d = Math.floor(h / 24);
+    if (d === 1) return '昨天';
+    if (d === 2) return '前天';
+    if (d < 7) return `${d} 天前`;
+    if (d < 14) return '上周';
+    if (d < 30) return `${Math.floor(d / 7)} 周前`;
+    if (d < 60) return '上个月';
+    if (d < 365) return `${Math.floor(d / 30)} 个月前`;
+    // 超过一年:具体日期
+    return formatAbsolute(ts);
+  }
+  function formatAbsolute(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    const sameYear = d.getFullYear() === now.getFullYear();
+    const mm = d.getMonth() + 1;
+    const dd = d.getDate();
+    if (sameYear) return `${mm} 月 ${dd} 日`;
+    return `${d.getFullYear()} 年 ${mm} 月 ${dd} 日`;
+  }
+  function uid() { return 'id-' + Math.random().toString(36).slice(2, 9); }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ============== RENDER LIST ==============
+  let currentFilter = 'all';
+  function renderList() {
+    const list = document.getElementById('postList');
+    let filtered = currentFilter === 'all' ? posts.slice() : posts.filter(p => p.cat === currentFilter);
+    // sort by latest activity (latest reply or op ts)
+    filtered.sort((a, b) => {
+      const aLast = a.replies.length ? a.replies[a.replies.length-1].ts : a.ts;
+      const bLast = b.replies.length ? b.replies[b.replies.length-1].ts : b.ts;
+      return bLast - aLast;
+    });
+    if (filtered.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="emoji">🍃</div>
+          <h3>这一类还没有帖子</h3>
+          <p>来发第一个吧,大家都在等你提问。</p>
+        </div>
+      `;
+      return;
+    }
+    list.innerHTML = filtered.map(p => {
+      const lastReply = p.replies.length ? p.replies[p.replies.length-1] : null;
+      return `
+        <a class="post-row" href="?id=${p.id}" data-id="${p.id}">
+          <span class="author-avatar" style="background:${p.avatarColor}">${p.avatarText}</span>
+          <span class="cat-tag">${p.catLabel}</span>
+          <div class="info">
+            <h3>${escapeHtml(p.title)}</h3>
+            <div class="meta">
+              <span>${escapeHtml(p.author)}</span>
+              <span>· ${timeAgo(p.ts)}</span>
+              ${lastReply ? `<span>· 最后回复 ${escapeHtml(lastReply.author)}</span>` : ''}
+            </div>
+          </div>
+          <div class="stats">
+            <span class="replies">${p.replies.length}</span>
+            <span>回复</span>
+          </div>
+        </a>
+      `;
+    }).join('');
+    // Reveal stagger
+    const rows = list.querySelectorAll('.post-row');
+    rows.forEach(r => r.classList.add('card-pre'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.remove('card-pre');
+          e.target.classList.add('card-in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    rows.forEach((r, i) => {
+      r.style.transitionDelay = (i * 0.04) + 's';
+      io.observe(r);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  // ============== RENDER DETAIL ==============
+  function renderDetail(id) {
+    const p = posts.find(x => x.id === id);
+    if (!p) { window.location.href = 'forum.html'; return; }
+    const detail = document.getElementById('threadDetail');
+    detail.innerHTML = `
+      <a href="forum.html" class="back">← 返回论坛</a>
+      <span class="cat-pill">${p.catLabel}</span>
+      <h1>${escapeHtml(p.title)}</h1>
+      <div class="thread-op">
+        <span class="op-avatar" style="background:${p.avatarColor}">${p.avatarText}</span>
+        <div class="op-info">
+          <div class="who">${escapeHtml(p.author)} <span style="font-weight:400; font-size:12px; color:var(--ink-faint);">楼主</span></div>
+          <div class="when">${timeAgo(p.ts)}</div>
+          <div class="body-text">${escapeHtml(p.body)}</div>
+        </div>
+      </div>
+      <div class="reply-section">
+        <h3>${p.replies.length} 条回复</h3>
+        ${p.replies.map(r => `
+          <div class="reply">
+            <span class="r-avatar" style="background:${r.avatarColor}">${r.avatarText}</span>
+            <div class="r-body">
+              <div class="who">
+                <strong>${escapeHtml(r.author)}</strong>
+                <span>${timeAgo(r.ts)}</span>
+              </div>
+              <div class="body-text">${escapeHtml(r.body)}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="reply-form">
+        <div class="who-row">
+          <input type="text" id="replyName" placeholder="你的昵称" maxlength="20" />
+        </div>
+        <textarea id="replyBody" placeholder="说点什么吧... (Ctrl/Cmd + Enter 快速发送)"></textarea>
+        <div class="actions">
+          <span class="hint">保持友善,这是学习的地方 🌱</span>
+          <button class="btn-submit" id="btnSubmitReply">发送回复</button>
+        </div>
+      </div>
+    `;
+    // Wire reply submit
+    const btn = document.getElementById('btnSubmitReply');
+    const ta = document.getElementById('replyBody');
+    const name = document.getElementById('replyName');
+    // Pre-fill name if user set it before
+    const savedName = localStorage.getItem('eduby.user.name');
+    if (savedName) name.value = savedName;
+    function submit() {
+      const n = name.value.trim();
+      const b = ta.value.trim();
+      if (!n) { name.focus(); showToast('先取个昵称吧'); return; }
+      if (!b) { ta.focus(); showToast('说点什么再发吧'); return; }
+      if (b.length < 2) { showToast('再多说两句吧'); return; }
+      const initial = n[0];
+      localStorage.setItem('eduby.user.name', n);
+      p.replies.push({
+        id: uid(),
+        author: n,
+        avatarText: initial,
+        avatarColor: 'linear-gradient(135deg, #f472b6, #a78bfa)',
+        body: b,
+        ts: Date.now(),
+      });
+      savePosts(posts);
+      showToast('回复已发送 ✓');
+      renderDetail(id);
+      // scroll to the new reply (last one)
+      setTimeout(() => {
+        const replies = document.querySelectorAll('.reply');
+        if (replies.length) {
+          replies[replies.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+    btn.addEventListener('click', submit);
+    ta.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submit(); }
+    });
+    window.scrollTo(0, 0);
+  }
+
+  // ============== ROUTER ==============
+  function route() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) {
+      document.getElementById('view-list').style.display = 'none';
+      document.getElementById('view-detail').style.display = '';
+      renderDetail(id);
+    } else {
+      document.getElementById('view-list').style.display = '';
+      document.getElementById('view-detail').style.display = 'none';
+      renderList();
+    }
+  }
+
+  // ============== EVENT WIRING ==============
+  document.getElementById('filterBar').addEventListener('click', (e) => {
+    const pill = e.target.closest('.filter-pill');
+    if (!pill) return;
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    currentFilter = pill.dataset.cat;
+    renderList();
+  });
+
+  // New post modal
+  const modal = document.getElementById('newPostModal');
+  function openModal() {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('npTitle').focus(), 100);
+    // pre-fill name
+    const saved = localStorage.getItem('eduby.user.name');
+    if (saved && !document.getElementById('npAuthor').value) {
+      document.getElementById('npAuthor').value = saved;
+    }
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('btnNew').addEventListener('click', openModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  document.querySelectorAll('[data-modal-close]').forEach(b => b.addEventListener('click', closeModal));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+
+  document.getElementById('newPostForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = document.getElementById('npTitle').value.trim();
+    const cat = document.getElementById('npCat').value;
+    const author = document.getElementById('npAuthor').value.trim();
+    const body = document.getElementById('npBody').value.trim();
+    if (!title || !author || !body) return;
+    const catMap = { subject: '学科讨论', method: '学习方法', resource: '资源分享', feedback: '反馈建议' };
+    const palette = [
+      'linear-gradient(135deg, #a78bfa, #3b82f6)',
+      'linear-gradient(135deg, #f472b6, #a78bfa)',
+      'linear-gradient(135deg, #34d399, #60a5fa)',
+      'linear-gradient(135deg, #fb7185, #f59e0b)',
+      'linear-gradient(135deg, #06b6d4, #3b82f6)',
+    ];
+    const color = palette[Math.floor(Math.random() * palette.length)];
+    const newPost = {
+      id: uid(),
+      cat, catLabel: catMap[cat],
+      title, author,
+      avatarText: author[0],
+      avatarColor: color,
+      body,
+      ts: Date.now(),
+      replies: [],
+    };
+    posts.unshift(newPost);
+    savePosts(posts);
+    localStorage.setItem('eduby.user.name', author);
+    closeModal();
+    showToast('发布成功 ✓');
+    document.getElementById('newPostForm').reset();
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === 'all'));
+    renderList();
+  });
+
+  // Nav scroll
+  const nav = document.querySelector('.nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  window.addEventListener('popstate', route);
+  route();
+</script>
+
+</body>
+</html>
